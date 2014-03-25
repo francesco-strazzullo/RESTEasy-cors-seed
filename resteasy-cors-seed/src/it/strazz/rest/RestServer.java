@@ -1,5 +1,7 @@
 package it.strazz.rest;
 
+import it.strazz.rest.model.Person;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -17,6 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.io.IOUtils;
 
@@ -29,17 +32,29 @@ public class RestServer {
 	private static Gson GSON = new GsonBuilder().create();
 
 	@GET
-	@Path("/user/list")
+	@Path("/user/")
 	@Produces("application/json")
 	public Response getPeople() {
 		return Response.ok(GSON.toJson(Person.getAll())).build();
 	}
 
 	@GET
-	@Path("/user/get/{id}")
+	@Path("/user/{id}")
 	@Produces("application/json")
 	public Response getPerson(@PathParam(value = "id") Integer id) {
-		return Response.ok(GSON.toJson(Person.get(id))).build();
+		
+		Status status;
+		String responseBody = "";
+		
+		Person person = Person.get(id);
+		if(person != null){
+			status = Response.Status.OK;
+			responseBody = GSON.toJson(person);
+		}else{
+			status = Response.Status.NOT_FOUND;
+		}
+		
+		return Response.status(status).entity(responseBody).build();
 	}
 	
 	private String extractBodyFromRequest(HttpServletRequest request){
@@ -53,11 +68,11 @@ public class RestServer {
 	}
 	
 	@POST
-	@Path("/user/create/")
+	@Path("/user/")
 	@Consumes("application/json")
 	public Response createPerson(@Context HttpServletRequest request){
 		
-		int status;
+		Status status;
 		String responseBody = "";
 		
 		String requestBody = extractBodyFromRequest(request);
@@ -65,9 +80,9 @@ public class RestServer {
 		Person p = GSON.fromJson(requestBody, Person.class);
 		
 		if(p.getId() != null){
-			status = 400;
+			status = Status.BAD_REQUEST;
 		}else{
-			status = 200;
+			status = Status.OK;
 			p = Person.add(p);
 			responseBody = GSON.toJson(p);
 		}
@@ -76,11 +91,11 @@ public class RestServer {
 	}
 	
 	@PUT
-	@Path("/user/update/")
+	@Path("/user/{id}")
 	@Consumes("application/json")
 	public Response updatePerson(@Context HttpServletRequest request){
 		
-		int status;
+		Status status;
 		String responseBody = "";
 		
 		String requestBody = extractBodyFromRequest(request);
@@ -88,12 +103,12 @@ public class RestServer {
 		Person p = GSON.fromJson(requestBody, Person.class);
 		
 		if(p.getId() == null){
-			status = 400;
+			status = Status.BAD_REQUEST;
 		}else{
 			if(Person.get(p.getId()) == null){
-				status = 404;
+				status = Status.NOT_FOUND;
 			}else{
-				status = 200;
+				status = Status.OK;
 				p = Person.update(p);
 				responseBody = GSON.toJson(p);
 			}
@@ -103,16 +118,17 @@ public class RestServer {
 	}
 
 	@DELETE
-	@Path("/user/delete/{id}")
+	@Path("/user/{id}")
 	public Response deletePerson(@PathParam(value = "id") Integer id){
-		int status;
+
+		Status status;
 		
 		Person p = Person.get(id);
 		
 		if(p == null){
-			status = 404;
+			status = Status.NOT_FOUND;
 		}else{
-			status = 200;
+			status = Status.OK;
 			Person.delete(p);
 		}
 		
