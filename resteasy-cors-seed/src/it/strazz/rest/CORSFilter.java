@@ -8,7 +8,7 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
 @Provider
-public class CORSInterceptor implements ContainerResponseFilter
+public class CORSFilter implements ContainerResponseFilter
 {
 	public void filter(ContainerRequestContext requestContext,ContainerResponseContext responseContext) throws IOException {
 		responseContext.getHeaders().add("Access-Control-Allow-Origin", "*");
