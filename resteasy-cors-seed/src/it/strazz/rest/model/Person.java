@@ -63,14 +63,14 @@ public class Person implements Serializable{
 		});
 	}
 	
-	public static Person add(Person p){
-		p.setId(people.size());
-		people.add(p);
-		return p;
-	}
-
-	public static Person update(Person p){
-		people.set(p.getId(), p);
+	public static Person store(Person p){
+		if(p.getId() == null){
+			p.setId(people.size());
+			people.add(p);
+		}else{
+			people.set(p.getId(), p);
+		}
+		
 		return p;
 	}
 	

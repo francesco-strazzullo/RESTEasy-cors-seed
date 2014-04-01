@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 
 @Path("/")
 public class RestServer {
@@ -42,76 +43,79 @@ public class RestServer {
 	@Path("/user/{id}")
 	@Produces("application/json")
 	public Response getPerson(@PathParam(value = "id") Integer id) {
-		
+
 		Status status;
 		String responseBody = "";
-		
+
 		Person person = Person.get(id);
-		if(person != null){
+		if (person != null) {
 			status = Response.Status.OK;
 			responseBody = GSON.toJson(person);
-		}else{
+		} else {
 			status = Response.Status.NOT_FOUND;
-		}
-		
-		return Response.status(status).entity(responseBody).build();
-	}
-	
-	private String extractBodyFromRequest(HttpServletRequest request){
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			IOUtils.copy(request.getInputStream(), baos);
-			return new String(baos.toByteArray());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	@POST
-	@Path("/user/")
-	@Consumes("application/json")
-	public Response createPerson(@Context HttpServletRequest request){
-		
-		Status status;
-		String responseBody = "";
-		
-		String requestBody = extractBodyFromRequest(request);
-		
-		Person p = GSON.fromJson(requestBody, Person.class);
-		
-		if(p.getId() != null){
-			status = Status.BAD_REQUEST;
-		}else{
-			status = Status.OK;
-			p = Person.add(p);
-			responseBody = GSON.toJson(p);
 		}
 
 		return Response.status(status).entity(responseBody).build();
+	}
+
+	@POST
+	@Path("/user/")
+	@Consumes("application/json")
+	public Response createPerson(@Context HttpServletRequest request) {
+		return executeStore(null, request);
 	}
 	
 	@PUT
 	@Path("/user/{id}")
 	@Consumes("application/json")
-	public Response updatePerson(@Context HttpServletRequest request){
-		
-		Status status;
+	public Response updatePerson(@PathParam(value = "id") Integer id,@Context HttpServletRequest request) {
+		return executeStore(id, request);
+	}
+
+	protected Response executeStore(Integer id, HttpServletRequest request) {
+
+		Status status = Status.OK;
 		String responseBody = "";
+		String requestBody = "";
+		Person p = null;
 		
-		String requestBody = extractBodyFromRequest(request);
-		
-		Person p = GSON.fromJson(requestBody, Person.class);
-		
-		if(p.getId() == null){
-			status = Status.BAD_REQUEST;
-		}else{
-			if(Person.get(p.getId()) == null){
-				status = Status.NOT_FOUND;
-			}else{
-				status = Status.OK;
-				p = Person.update(p);
-				responseBody = GSON.toJson(p);
+		/*
+		 * Carico il body in una stringa
+		 */
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			IOUtils.copy(request.getInputStream(), baos);
+			requestBody = new String(baos.toByteArray());
+		} catch (IOException e) {
+			Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+		}
+
+		/*
+		 * Effettuo il parse del JSON
+		 */
+		try {
+			p = GSON.fromJson(requestBody, Person.class);
+		} catch (JsonSyntaxException e) {
+			return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
+		}
+
+		if(id == null){
+			//Create
+			if(p.getId() != null){
+				status = Status.BAD_REQUEST;
 			}
+		}else{
+			//Update
+			if (p.getId() == null || !p.getId().equals(id)) {
+				status = Status.BAD_REQUEST;
+			} else if (Person.get(p.getId()) == null) {
+				status = Status.NOT_FOUND;
+			}
+		}
+		
+		if(Status.OK.equals(status)){
+			p = Person.store(p);
+			responseBody = GSON.toJson(p);
 		}
 		
 		return Response.status(status).entity(responseBody).build();
@@ -119,19 +123,19 @@ public class RestServer {
 
 	@DELETE
 	@Path("/user/{id}")
-	public Response deletePerson(@PathParam(value = "id") Integer id){
+	public Response deletePerson(@PathParam(value = "id") Integer id) {
 
 		Status status;
-		
+
 		Person p = Person.get(id);
-		
-		if(p == null){
+
+		if (p == null) {
 			status = Status.NOT_FOUND;
-		}else{
+		} else {
 			status = Status.OK;
 			Person.delete(p);
 		}
-		
+
 		return Response.status(status).build();
 	}
 
@@ -140,16 +144,16 @@ public class RestServer {
 	public Response handleCORSRequest(
 			@HeaderParam("Access-Control-Request-Method") final String requestMethod,
 			@HeaderParam("Access-Control-Request-Headers") final String requestHeaders) {
-		
+
 		final ResponseBuilder retValue = Response.ok();
-		
+
 		retValue.header("Access-Control-Allow-Origin", "*");
 
-		if (requestHeaders != null){
+		if (requestHeaders != null) {
 			retValue.header("Access-Control-Allow-Headers", requestHeaders);
 		}
-		
-		if (requestMethod != null){
+
+		if (requestMethod != null) {
 			retValue.header("Access-Control-Allow-Methods", requestMethod);
 		}
 
