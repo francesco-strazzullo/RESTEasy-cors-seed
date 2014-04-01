@@ -2,9 +2,12 @@ package it.strazz.rest.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ComparatorUtils;
 import org.apache.commons.collections.Predicate;
 
 public class Person implements Serializable{
@@ -65,7 +68,15 @@ public class Person implements Serializable{
 	
 	public static Person store(Person p){
 		if(p.getId() == null){
-			p.setId(people.size());
+			
+			Person maxIdPerson = Collections.max(people, new Comparator<Person>() {
+				public int compare(Person o1, Person o2) {
+					return Integer.compare(o1.getId(), o2.getId());
+				}
+			});
+			
+			p.setId(maxIdPerson.getId()+1);
+			
 			people.add(p);
 		}else{
 			people.set(p.getId(), p);
@@ -75,6 +86,6 @@ public class Person implements Serializable{
 	}
 	
 	public static void delete(Person p){
-		people.remove(p.getId().intValue());
+		people.remove(p);
 	}
 }
