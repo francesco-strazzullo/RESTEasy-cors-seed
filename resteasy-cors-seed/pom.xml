@@ -5,7 +5,7 @@
 	<artifactId>resteasy-cors-seed</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>resteasy-cors-seed Maven Webapp</name>
+	<name>resteasy-cors-seed</name>
 	<url>http://maven.apache.org</url>
 	<repositories>
 		<repository>
