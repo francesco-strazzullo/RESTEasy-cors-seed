@@ -17,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
@@ -34,14 +35,14 @@ public class RESTServer {
 
 	@GET
 	@Path("/user/")
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPeople() {
 		return Response.ok(GSON.toJson(Person.getAll())).build();
 	}
 
 	@GET
 	@Path("/user/{id}")
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response getPerson(@PathParam(value = "id") Integer id) {
 
 		Status status;
@@ -60,14 +61,14 @@ public class RESTServer {
 
 	@POST
 	@Path("/user/")
-	@Consumes("application/json")
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createPerson(@Context HttpServletRequest request) {
 		return executeStore(null, request);
 	}
 	
 	@PUT
 	@Path("/user/{id}")
-	@Consumes("application/json")
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updatePerson(@PathParam(value = "id") Integer id,@Context HttpServletRequest request) {
 		return executeStore(id, request);
 	}
