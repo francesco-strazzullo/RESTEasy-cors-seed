@@ -10,7 +10,11 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class CORSFilter implements ContainerResponseFilter
 {
+	private static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+
 	public void filter(ContainerRequestContext requestContext,ContainerResponseContext responseContext) throws IOException {
-		responseContext.getHeaders().add("Access-Control-Allow-Origin", "*");
+		if(!responseContext.getHeaders().containsKey(ACCESS_CONTROL_ALLOW_ORIGIN)){
+			responseContext.getHeaders().add(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+		}
 	}
 }

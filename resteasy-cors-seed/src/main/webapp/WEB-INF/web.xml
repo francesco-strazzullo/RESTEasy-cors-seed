@@ -3,26 +3,17 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
-	<display-name>RestEasy Seed</display-name>
 
-	<!-- Auto scan REST service -->
 	<context-param>
-		<param-name>resteasy.scan</param-name>
-		<param-value>true</param-value>
+		<param-name>resteasy.resources</param-name>
+		<param-value>it.strazz.rest.RESTServer</param-value>
 	</context-param>
-
-	<!-- this need same with resteasy servlet url-pattern -->
+	
 	<context-param>
-		<param-name>resteasy.servlet.mapping.prefix</param-name>
-		<param-value>/</param-value>
+		<param-name>resteasy.providers</param-name>
+		<param-value>it.strazz.rest.CORSFilter</param-value>
 	</context-param>
-
-	<listener>
-		<listener-class>
-			org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap
-		</listener-class>
-	</listener>
-
+	
 	<servlet>
 		<servlet-name>resteasy-servlet</servlet-name>
 		<servlet-class>

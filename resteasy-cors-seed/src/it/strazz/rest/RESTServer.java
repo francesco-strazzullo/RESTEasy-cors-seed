@@ -28,7 +28,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 @Path("/")
-public class RestServer {
+public class RESTServer {
 
 	private static Gson GSON = new GsonBuilder().create();
 
