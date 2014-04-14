@@ -4,16 +4,6 @@
 
 <web-app>
 
-	<context-param>
-		<param-name>resteasy.resources</param-name>
-		<param-value>it.strazz.rest.RESTServer</param-value>
-	</context-param>
-	
-	<context-param>
-		<param-name>resteasy.providers</param-name>
-		<param-value>it.strazz.rest.CORSFilter</param-value>
-	</context-param>
-	
 	<servlet>
 		<servlet-name>resteasy-servlet</servlet-name>
 		<servlet-class>
@@ -25,4 +15,14 @@
 		<servlet-name>resteasy-servlet</servlet-name>
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
+	
+	<context-param>
+		<param-name>resteasy.resources</param-name>
+		<param-value>it.strazz.rest.RESTServer</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>resteasy.providers</param-name>
+		<param-value>it.strazz.rest.CORSFilter</param-value>
+	</context-param>
 </web-app>
