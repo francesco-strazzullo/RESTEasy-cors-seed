@@ -146,18 +146,18 @@ public class RESTServer {
 			@HeaderParam("Access-Control-Request-Method") final String requestMethod,
 			@HeaderParam("Access-Control-Request-Headers") final String requestHeaders) {
 
-		final ResponseBuilder retValue = Response.ok();
+		final ResponseBuilder response = Response.ok();
 
-		retValue.header("Access-Control-Allow-Origin", "*");
+		response.header("Access-Control-Allow-Origin", "*");
 
 		if (requestHeaders != null) {
-			retValue.header("Access-Control-Allow-Headers", requestHeaders);
+			response.header("Access-Control-Allow-Headers", requestHeaders);
 		}
 
 		if (requestMethod != null) {
-			retValue.header("Access-Control-Allow-Methods", requestMethod);
+			response.header("Access-Control-Allow-Methods", requestMethod);
 		}
 
-		return retValue.build();
+		return response.build();
 	}
 }
